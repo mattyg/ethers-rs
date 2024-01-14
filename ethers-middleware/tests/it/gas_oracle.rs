@@ -69,6 +69,20 @@ async fn blocknative() {
 }
 
 #[tokio::test]
+async fn blocknative_gnosischain() {
+    let gas_now_oracle = BlockNative::default().chainid(100);
+    let gas_price = gas_now_oracle.fetch().await.unwrap();
+    assert!(gas_price > U256::zero());
+}
+
+#[tokio::test]
+async fn blocknative_polygon() {
+    let gas_now_oracle = BlockNative::default().chainid(137);
+    let gas_price = gas_now_oracle.fetch().await.unwrap();
+    assert!(gas_price > U256::zero());
+}
+
+#[tokio::test]
 #[ignore = "ETHGasStation is shutting down: https://twitter.com/ETHGasStation/status/1597341610777317376"]
 #[allow(deprecated)]
 async fn eth_gas_station() {

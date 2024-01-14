@@ -16,6 +16,7 @@ pub struct BlockNative {
     client: Client,
     url: Url,
     api_key: Option<String>,
+    chain_id: u64,
     gas_category: GasCategory,
 }
 
@@ -102,7 +103,7 @@ impl BlockNative {
     /// Same as [`Self::new`] but with a custom [`Client`].
     pub fn with_client(client: Client, api_key: Option<String>) -> Self {
         let url = Url::parse(URL).unwrap();
-        Self { client, api_key, url, gas_category: GasCategory::Standard }
+        Self { client, api_key, url, gas_category: GasCategory::Standard, chain_id: 1 }
     }
 
     /// Sets the gas price category to be used when fetching the gas price.
@@ -111,9 +112,16 @@ impl BlockNative {
         self
     }
 
+    /// Sets the chain id to fetch the gas price for
+    pub fn chainid(mut self, chain_id: u64) -> Self {
+        self.chain_id = chain_id;
+        self
+    }
+
     /// Perform a request to the gas price API and deserialize the response.
     pub async fn query(&self) -> Result<Response, GasOracleError> {
         let mut request = self.client.get(self.url.clone());
+        request = request.query(&[("chainid", self.chain_id)]);
         if let Some(api_key) = self.api_key.as_ref() {
             request = request.header(AUTHORIZATION, api_key);
         }
